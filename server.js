@@ -32,6 +32,32 @@ const authors = [
   }
 ];
 
+let fakeData = {
+  2: {
+    id: 2,
+    name: "Pankaj",
+    quote: "I am here"
+  }
+};
+
+createMessage = ({ input }) => {
+  const id = Math.ceil(Math.random(0, 10) * 10);
+  fakeData[id] = input;
+  return { id: id };
+};
+updateMessage = ({ id, input }) => {
+  if (!fakeData[id]) {
+    console.log("json stringify", fakeData);
+    throw new Error("No Id Present " + id);
+  }
+  fakeData[id] = { ...input, id: id };
+  return fakeData[id];
+};
+deleteMessage = ({ id }) => {
+  const ok = Boolean(fakeData[id]);
+  delete fakeData[id];
+  return { ok };
+};
 const typeDefs = gql`
   type Job {
     id: Int
@@ -50,13 +76,30 @@ const typeDefs = gql`
     live: Boolean
     books: [Book]
   }
-
   type Query {
     hello: String
     job(id: Int!): [Job]
     jobs: [Job]
     getBooks: [Book]
     getAuthors: [Author]
+  }
+
+  input MessageInput {
+    name: String
+    quote: String
+  }
+  type Message {
+    id: ID!
+    name: String
+    quote: String
+  }
+  type DeleteMessageResponse {
+    ok: Boolean!
+  }
+  type Mutation {
+    createMessage(input: MessageInput): Message
+    updateMessage(id: ID!, input: MessageInput): Message
+    deleteMessage(id: ID!): DeleteMessageResponse
   }
 `;
 
@@ -75,6 +118,21 @@ const resolvers = {
     jobs: () => jobs,
     getBooks: () => books,
     getAuthors: () => authors
+  },
+  Mutation: {
+    createMessage: (parent, args, context, info) => {
+      return createMessage(args);
+    },
+    updateMessage: (parent, args, context, info) => {
+      return updateMessage(args);
+    },
+    deleteMessage: (parent, args, context, info) => {
+      console.log("parent ==== ", parent);
+      console.log("args ==== ", args);
+      console.log("context ==== ", context);
+      console.log("info ==== ", info);
+      return deleteMessage(args);
+    }
   }
 };
 

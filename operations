@@ -1,0 +1,155 @@
+http://localhost:3002/graphql
+How to pass data to execute the opertaions 
+CRUD
+For Read
+Request :
+{  
+  hello
+}
+Response :
+{
+  "data": {
+    "hello": "Hello World"
+  }
+}
+
+For Create
+https://graphql.org/graphql-js/mutations-and-input-types/
+Request : 
+mutation CreateMessage($input: MessageInput) { <= Operation
+  createMessage(input: $input) { <= Query Field on type Mutation 
+    id <= Query Field on type Message
+  }, 
+}
+
+Variables => 
+{
+   "input"  : {
+     "name":"Pankaj",
+     "quote":"Silence and Smile"  
+   }
+}
+Response : 
+{
+  "data": {
+    "createMessage": {
+      "id": 10
+    }
+  }
+}
+
+var author = 'andy';
+var content = 'hope is a good thing';
+var query = `mutation CreateMessage($input: MessageInput) {
+  createMessage(input: $input) {
+    id
+  }
+}`;
+
+fetch('/graphql', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+  body: JSON.stringify({
+    query,
+    variables: {
+      input: {
+        author,
+        content,
+      }
+    }
+  })
+})
+  .then(r => r.json())
+  .then(data => console.log('data returned:', data));
+
+For Update
+Request :
+mutation Update($id: ID!, $input: MessageInput) {
+  updateMessage(id: $id, input:$input) {
+    quote,
+    name
+  }
+}
+
+Variables =>  
+
+{
+  "id":2,
+  "input": {
+    "name":"Piyush",
+   "quote":"Let me live alone"
+   }
+}
+
+Success Response : 
+{ 
+  "data": {
+    "updateMessage": {
+      "quote": "Let me live alone",
+      "name": "Piyush"
+    }
+  }
+}
+
+Error Response : 
+{
+  "errors": [
+    {
+      "message": "No Id Present 3",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": [
+        "updateMessage"
+      ],
+      "extensions": {
+        "code": "INTERNAL_SERVER_ERROR",
+        "exception": {
+          "stacktrace": [
+            "Error: No Id Present 3",
+            "    at updateMessage (E:\\graphql\\server.js:51:11)",
+            "    at updateMessage (E:\\graphql\\server.js:122:14)",
+            "    at field.resolve (E:\\graphql\\node_modules\\graphql-extensions\\dist\\index.js:133:26)",
+            "    at resolveFieldValueOrError (E:\\graphql\\node_modules\\graphql\\execution\\execute.js:467:18)",
+            "    at resolveField (E:\\graphql\\node_modules\\graphql\\execution\\execute.js:434:16)",
+            "    at E:\\graphql\\node_modules\\graphql\\execution\\execute.js:244:18",
+            "    at E:\\graphql\\node_modules\\graphql\\jsutils\\promiseReduce.js:23:10",
+            "    at Array.reduce (<anonymous>)",
+            "    at promiseReduce (E:\\graphql\\node_modules\\graphql\\jsutils\\promiseReduce.js:20:17)",
+            "    at executeFieldsSerially (E:\\graphql\\node_modules\\graphql\\execution\\execute.js:241:37)"
+          ]
+        }
+      }
+    }
+  ],
+  "data": {  
+    "updateMessage": null
+  }
+}
+
+For Delete
+Request =>
+mutation DeleteMessage($id: ID!) {
+  deleteMessage(id: $id) {
+    ok
+  }
+}
+Variables => 
+{
+  "id":2
+}
+
+Response => 
+{
+  "data": {
+    "deleteMessage": {
+      "ok": true
+    }
+  }
+}
